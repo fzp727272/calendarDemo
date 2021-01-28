@@ -31,6 +31,7 @@ module.exports = [
     {
         type: 'show',
         num: 5,
+        subscribe:'今日'
     }, {
         type: 'show',
         num: 6
@@ -82,11 +83,13 @@ module.exports = [
         num: 19
     },
     {
-        type: 'today',
+        type: 'show',
         num: 20,
+       
     }, {
         type: 'show',
-        num: 21
+        num: 21,
+        subscribe:'劳动节'
     },
     {
         type: 'show',
@@ -114,7 +117,8 @@ module.exports = [
         num: 28,
     }, {
         type: 'show',
-        num: 29
+        num: 29,
+        subscribe:'春节'
     },
     {
         type: 'show',

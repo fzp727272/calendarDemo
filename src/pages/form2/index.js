@@ -12,8 +12,9 @@ import {
 } from 'antd-mobile';
 import enUs from 'antd-mobile/lib/date-picker-view/locale/en_US';
 import data from './data';
-
 class Index extends React.Component {
+
+
   state = {
     docked: true,
     docked2: false,
@@ -21,6 +22,7 @@ class Index extends React.Component {
     value: null,
     selectNum: 0,
     beginKey: 0,
+    selectButton: null,
     // endKey,
     title: '开始时间',
   };
@@ -33,10 +35,10 @@ class Index extends React.Component {
   closeDock = () => {
     this.setState({
       docked: false,
-      docked2: false,
-      data: data,
-      value: null,
-      selectNum: 0,
+      // docked2: false,
+      // data: data,
+      // value: null,
+      // selectNum: 0,
     });
   };
   renderCalendar = () => {
@@ -49,6 +51,7 @@ class Index extends React.Component {
           // const key2 =key;
 
           const select = () => {
+            this.setState({selectButton:null})
             let cash = this.state.data;
 
             // if (item.type == 'selected') {
@@ -82,10 +85,12 @@ class Index extends React.Component {
                   cash[key].type = 'show';
                 } else if (item.type == 'progress') {
                   cash[key].type = 'show';
+                } else if (item.type == 'beginSecond') {
+                  cash[key].type = 'show';
                 }
               });
-              cash[key].type = 'begin';
 
+              cash[key].type = 'begin';
               this.setState({
                 selectNum: 1,
                 title: '开始时间',
@@ -93,29 +98,61 @@ class Index extends React.Component {
               });
             } else {
               if (key > this.state.beginKey) {
+
                 cash[key].type = 'end';
+                cash[this.state.beginKey].type = 'beginSecond';
+                // arr.splice(this.state.beginKey+1, key-1,);
+                const _key = key;
+
+                this.state.data.map((item, key) => {
+                  if (key > this.state.beginKey && key < _key) {
+                    if (cash[key].type == null) {
+                      cash[key].type = null;
+                    } else if (cash[key].type == 'undo') {
+                      cash[key].type = 'undo';
+                    } else if (cash[key].type == 'month') {
+                      cash[key].type = 'month';
+                    } else {
+                      cash[key].type = 'progress'
+                    }
+
+                  }
+                });
+
+                this.setState({
+                  selectNum: 0,
+                  title: '结束时间',
+                });
+
+
+
+              } else if (key < this.state.beginKey) {
+                this.state.data.map((item, key) => {
+                  if (item.type == 'begin') {
+                    cash[key].type = 'show';
+                  } else if (item.type == 'end') {
+                    cash[key].type = 'show';
+                  } else if (item.type == 'beginSecond') {
+                    cash[key].type = 'show';
+                  }
+                });
+                cash[key].type = 'begin';
+                this.setState({
+                  selectNum: 1,
+                  title: '开始时间',
+                  beginKey: key,
+                });
+
               }
 
-              // arr.splice(this.state.beginKey+1, key-1,);
-              const _key = key;
 
-              this.state.data.map((item, key) => {
-                if (key > this.state.beginKey && key < _key) {
-                  cash[key].type = 'progress';
-                }
-              });
-
-              this.setState({
-                selectNum: 3,
-                title: '结束时间',
-              });
             }
 
             // console.log(cash)
 
             this.setState({
               data: cash,
-              docked2: true,
+
             });
 
             // cash[key1].data[key2].type="selected";
@@ -132,31 +169,44 @@ class Index extends React.Component {
               break;
             case 'selected':
               return (
-                <div className={`${styles.col} ${styles.selected}`}>
+                <div className={`${styles.col} ${styles.selected}`} onClick={() => select()}>
                   <span>{item.num}</span>
+                  <div className={styles.subTag}>{item.subscribe}</div>{' '}
                 </div>
               );
               break;
             case 'begin':
               return (
-                <div className={`${styles.col} ${styles.begin}`}>
+                <div className={`${styles.col} ${styles.begin}`} onClick={() => select()}>
+                  <span>{item.num}</span>
+                  {/* <div className={styles.bottomTag}>起</div> */}
+                  <div className={styles.subTag}>{item.subscribe}</div>{' '}
+                </div>
+              );
+              break;
+            case 'beginSecond':
+              return (
+                <div className={`${styles.col} ${styles.beginSecond}`} onClick={() => select()}>
                   <span>{item.num}</span>
                   <div className={styles.bottomTag}>起</div>
+                  <div className={styles.subTag}>{item.subscribe}</div>{' '}
                 </div>
               );
               break;
             case 'end':
               return (
-                <div className={`${styles.col} ${styles.end}`}>
+                <div className={`${styles.col} ${styles.end}`} onClick={() => select()}>
                   <span>{item.num}</span>
                   <div className={styles.bottomTag}>止</div>{' '}
+                  <div className={styles.subTag}>{item.subscribe}</div>{' '}
                 </div>
               );
               break;
             case 'progress':
               return (
-                <div className={`${styles.col} ${styles.progress}`}>
+                <div className={`${styles.col} ${styles.progress}`} onClick={() => select()}>
                   <span>{item.num}</span>
+                  <div className={styles.subTag}>{item.subscribe}</div>{' '}
                 </div>
               );
               break;
@@ -164,6 +214,7 @@ class Index extends React.Component {
               return (
                 <div className={styles.col} onClick={() => select()}>
                   <span>{item.num}</span>
+                  <div className={styles.subTag}>{item.subscribe}</div>{' '}
                 </div>
               );
               break;
@@ -178,7 +229,7 @@ class Index extends React.Component {
               return (
                 <div className={`${styles.col} ${styles.today}`} onClick={() => select()}>
                   <span>{item.num}</span>
-                  <div className={styles.todayTag}>今日</div>{' '}
+                  <div className={styles.subTag}>今日</div>{' '}
                 </div>
               );
               break;
@@ -200,8 +251,43 @@ class Index extends React.Component {
   onValueChange = (...args) => {
     console.log(args);
   };
+  reset = () => {
+    const cash = this.state.data;
+    this.state.data.map((item, key) => {
+      if (item.type == 'begin') {
+        cash[key].type = 'show';
+      } else if (item.type == 'end') {
+        cash[key].type = 'show';
+      } else if (item.type == 'progress') {
+        cash[key].type = 'show';
+      } else if (item.type == 'beginSecond') {
+        cash[key].type = 'show';
+      }
+    });
+    this.setState({
+      data: cash,
+      // selectButton:null
+    })
 
+  }
+  headerButtonCLick = (item, key) => {
+
+    if (key == this.state.selectButton) {
+      this.setState({
+        selectButton: null
+      })
+    } else {
+      this.setState({
+        selectButton: key
+      });
+      this.reset()
+  
+
+    }
+  }
   render() {
+    const headerBotton = ["全部时间", "本周", "本月", "周末"]
+
     const sidebar = (
       <div
         className={styles.side}
@@ -222,20 +308,31 @@ class Index extends React.Component {
 
         <header>
           <div className={styles.headerBar}></div>
+          <div className={styles.headerButtonContainer}>
+            {headerBotton.map((item, key) => {
+              return (
+                <div className={key == this.state.selectButton ? styles.headerButtonActive : styles.headerButton} key={key} onClick={() => this.headerButtonCLick(item, key)}>{item}</div>
+              )
+            })}
 
+          </div>
           <div className={styles.headerWeekdays}>
-            <span className={styles.weekkend}>周日</span>
-            <span>周一</span>
-            <span>周二</span>
-            <span>周三</span>
-            <span>周四</span>
-            <span>周五</span>
-            <span className={styles.weekkend}>周六</span>
+            <span className={styles.weekend}>日</span>
+            <span>一</span>
+            <span>二</span>
+            <span>三</span>
+            <span>四</span>
+            <span>五</span>
+            <span className={styles.weekend}>六</span>
           </div>
         </header>
-        <div style={{ marginTop: 40, height: 500, overflowY: 'auto' }}>
+        <div style={{ marginTop: 40, height: 400, overflowY: 'auto' }}>
           {this.renderCalendar()}
-     
+
+        </div>
+        <div className={styles.footerContainer}>
+          <div className={styles.reset} onClick={this.reset}>重置</div>
+          <div className={styles.save} onClick={this.closeDock}>确定</div>
         </div>
       </div>
     );
@@ -245,30 +342,8 @@ class Index extends React.Component {
         <div className={styles.container}>
 
 
-          <div
-            className={styles.bottomButton}
-            style={{ display: this.state.docked2 ? 'flex' : 'none' }}
-          >
-            <div className={styles.timeShow}>
-              <div className={styles.timeItem}>开始：2020-08-09 09:00</div>
-              <div
-                className={styles.timeItem}
-                style={{ opacity: this.state.selectNum == 3 ? 1 : 0 }}
-              >
-                结束：2020-08-22 10:00
-              </div>
-            </div>
-
-            <div
-              className={styles.clickButton}
-              style={{ opacity: this.state.selectNum == 3 ? 1 : 0.3 }}
-              onClick={this.closeDock.bind(this)}
-            >
-              确定
-            </div>
-          </div>
           <Drawer
-            docked={true}
+            docked={this.state.docked}
             position={'top'}
             // style={{ minHeight: document.documentElement.clientHeight ,width:'100%',background:'rgba(0,0,0,0.6)'}}
             // contentStyle={{ color: '#A6A6A6', textAlign: 'center', paddingTop: 42 }}
@@ -281,7 +356,10 @@ class Index extends React.Component {
             docked={this.state.docked}
           >
             <div className={styles.filterContainer} onClick={this.onDock.bind(this)} >
-     <div></div>
+              <div>全部运动</div>
+              <div>全部时间</div>
+              <div>排序</div>
+              <div>筛选</div>
             </div>
           </Drawer>
 
